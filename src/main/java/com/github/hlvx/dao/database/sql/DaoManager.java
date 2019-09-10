@@ -1,5 +1,7 @@
-package com.github.alexmog.hlvx.core.database.sql;
+package com.github.hlvx.dao.database.sql;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.ext.sql.SQLClient;
 import org.apache.commons.pool2.BasePooledObjectFactory;
@@ -46,24 +48,34 @@ public class DaoManager {
      * @param <T> The DAO generic type you want to instantiate
      * @throws Exception
      */
-    public <T extends DAO> void createDao(Class<T> dao, Handler<T> handler) throws Exception {
-        ObjectPool<DAO> pool = daoPools.get(dao);
-        if (pool == null) {
-            pool = new GenericObjectPool<>(new Factory(dao.getConstructor()));
-            daoPools.put(dao, pool);
-        }
-
-        DAO instance = pool.borrowObject();
-        SQLSession.createSession(client, session -> {
-            instance.setSession(session);
-            instance.setManager(this);
-            handler.handle((T) instance);
-            try {
-                instance.close();
-            } catch (Exception e) {
-                logger.error("Cannot close DAO " + dao, e);
+    public <T extends DAO> void createDao(Class<T> dao, Handler<AsyncResult<T>> handler) {
+        try {
+            ObjectPool<DAO> pool = daoPools.get(dao);
+            if (pool == null) {
+                pool = new GenericObjectPool<>(new Factory(dao.getConstructor()));
+                daoPools.put(dao, pool);
             }
-        });
+
+            DAO instance = pool.borrowObject();
+            SQLSession.createSession(client, sessionResult -> {
+                if (sessionResult.failed()) {
+                    handler.handle(Future.failedFuture(sessionResult.cause()));
+                    return;
+                }
+                instance.setSession(sessionResult.result());
+                instance.setManager(this);
+                handler.handle(Future.succeededFuture((T) instance));
+                try {
+                    instance.close();
+                } catch (Exception e) {
+                    logger.error("Cannot close DAO " + dao, e);
+                }
+            });
+        } catch (Exception e) {
+            // TODO Manage exception
+            logger.error("Exception catched for DAO " + dao, e);
+            handler.handle(Future.failedFuture(e));
+        }
     }
 
     /**
@@ -77,32 +89,28 @@ public class DaoManager {
      * @param <T> The DAO generic type you want to instantiate
      * @throws Exception
      */
-    public <T extends DAO> void createDao(SQLSession session, Class<T> dao, Handler<T> handler) throws Exception {
-        ObjectPool<DAO> pool = daoPools.get(dao);
-        if (pool == null) {
-            pool = new GenericObjectPool<>(new Factory(dao.getConstructor()));
-            daoPools.put(dao, pool);
-        }
-
-        DAO instance = pool.borrowObject();
-        instance.setSession(session);
-        instance.setManager(this);
-        handler.handle((T) instance);
+    public <T extends DAO> void createDao(SQLSession session, Class<T> dao, Handler<AsyncResult<T>> handler) {
         try {
-            instance.close();
-        } catch (Exception e) {
-            logger.error("Cannot close DAO " + dao, e);
-        }
-    }
+            ObjectPool<DAO> pool = daoPools.get(dao);
+            if (pool == null) {
+                pool = new GenericObjectPool<>(new Factory(dao.getConstructor()));
+                daoPools.put(dao, pool);
+            }
 
-    /**
-     * Creates a new SQLSession, useful when using multiple DAOs with the same session
-     * @param handler
-     */
-    public void createSession(Handler<SQLSession> handler) {
-        SQLSession.createSession(client, session -> {
-            handler.handle(session);
-        });
+            DAO instance = pool.borrowObject();
+            instance.setSession(session);
+            instance.setManager(this);
+            handler.handle(Future.succeededFuture((T) instance));
+            try {
+                instance.close();
+            } catch (Exception e) {
+                logger.error("Cannot close DAO " + dao, e);
+            }
+        } catch (Exception e) {
+            // TODO Manage exception
+            logger.error("Exception catched for DAO " + dao, e);
+            handler.handle(Future.failedFuture(e));
+        }
     }
 
     protected void returnDao(DAO dao) throws Exception {

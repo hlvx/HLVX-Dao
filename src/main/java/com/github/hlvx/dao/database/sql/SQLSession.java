@@ -25,8 +25,8 @@ public class SQLSession implements AutoCloseable {
 
     /**
      * Creates a new SQLSession, useful when using multiple DAOs with the same session
-     * @param client
-     * @param handler
+     * @param client The SQL client to use
+     * @param handler The handler to use
      */
     public static void createSession(SQLClient client, Handler<AsyncResult<SQLSession>> handler) {
         client.getConnection(connectionResult -> {

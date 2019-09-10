@@ -6,8 +6,16 @@ The goal of this library is to offer a simple way to create and manage DAOs usin
 HLVX-Dao is still in alpha, so please report any [issues](https://github.com/hlvx/HLVX-Dao/issues) discovered.
 
 # Setup
-HLVX-Dao is not currently available on maven Central right now.  
-You can use it by installing it to your local maven repository by:  
+HLVX-Dao is available on maven central, simply add this dependency to your maven project:
+```xml
+<dependency>
+  <groupId>com.github.hlvx</groupId>
+  <artifactId>hlvx-dao</artifactId>
+  <version>VERSION</version>
+</dependency>
+```
+
+#### Use HLVX-Dao locally only
 Cloning this repository
 ```bash
 git clone https://github.com/hlvx/HLVX-Dao

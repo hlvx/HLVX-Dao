@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.hlvx</groupId>
   <artifactId>hlvx-dao</artifactId>
-  <version>0.0.7a</version>
+  <version>0.0.8a</version>
   <packaging>jar</packaging>
 
   <name>HLVX-Dao</name>
@@ -123,7 +123,7 @@
             <extensions>true</extensions>
             <configuration>
               <serverid>ossrh</serverid>
-              <nexusurl>https://oss.sonatype.org/</nexusurl>
+              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
               <autoreleaseafterclose>true</autoreleaseafterclose>
             </configuration>
           </plugin>

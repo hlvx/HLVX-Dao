@@ -1,4 +1,14 @@
 language: java
 before_deploy:
-  - mvn help:evaluate -N -Dexpression=project.version|grep -v '\['
-  - export project_version=$(mvn help:evaluate -N -Dexpression=project.version|grep -v '\[')
+- mvn help:evaluate -N -Dexpression=project.version|grep -v '\['
+- export project_version=$(mvn help:evaluate -N -Dexpression=project.version|grep
+  -v '\[')
+deploy:
+  provider: releases
+  api_key:
+    secure: OoUZIhjeaL5XiTURI9CZuOQ8We71Hb2AYTVmq45kWG0aTysGtVjwo1G12D/jPKWiaMdxjIeQRUWNUGZE3R/T6V3JMtxOTq/nOaKjy1UnFDcKKo/hR1OndtBwAin5vuPtkD/u1Kl4CzBN5lt+a1k4YJIwjSHXyRiWArC03vte218dhYmAdodTaXazLEnb1j1tqprrEk1uCvCZdyzMBktq+Y0LScQQDHm3EXJVDiHHRuq0Y+yysB6XhECj9htv8Mm9wtkVSiHyKjdMhe1i0fJV5BC+ASBnvG5q/cZzERk6NYSN0oAI9v0bo3OaDQqsZ06QGV4ExG0zclBj6TUY888R1lxGdW+F2VqsosI7lBliSzfR9Hepo34etbgHRwz+CzJcSQvBlA6BrjIuwFBeruw63uirciu3k2CtD04+D9SafCrASFQKoE5NdC5cprpbQ3zk2+23mb899IwlILP0ehWwL7WlY88E9Z+WBczG1beglFF8oiMXg0gcLjOFW/+NWwI8rnubDacEdJ50CCkPDiJjXZgJJptY3a/lYaFKdXTT4jhKlmM3zadQLrEQL2OupuL+zD1kDgK0Kz7HGcW2jpsz6bHz1q7LxyPod0zpF1R0LuWaLbTA+0OLoa7b3zPCUzUKUpXEcXOYIVVpyWT2dYwhY8aPNwzdFIfTrL+ddx5uSBg=
+  file: target/hlvx-dao-$project_version.jar
+  skip_cleanup: true
+  on:
+    repo: hlvx/HLVX-Dao
+  name: $project_version

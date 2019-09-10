@@ -3,7 +3,7 @@
   <groupId>com.github.hlvx</groupId>
   <artifactId>hlvx-dao</artifactId>
   <version>0.0.6a-SNAPSHOT</version>
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
 
   <name>HLVX-Dao</name>
   <description>High Level DAO for VertX</description>
@@ -16,8 +16,8 @@
   </organization>
   
   <properties>
-  	<maven.compiler.target>1.9</maven.compiler.target>
-    <maven.compiler.source>1.9</maven.compiler.source>
+  	<maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.test.skip>true</maven.test.skip>
     <vertx.version>3.8.1</vertx.version>
@@ -63,6 +63,32 @@
             <origin>origin</origin>
           </gitFlowConfig>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.10.3</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

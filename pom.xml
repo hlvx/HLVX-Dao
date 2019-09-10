@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.hlvx</groupId>
   <artifactId>hlvx-dao</artifactId>
-  <version>0.0.5a-SNAPSHOT</version>
+  <version>0.0.5a</version>
   <packaging>pom</packaging>
 
   <name>HLVX-Dao</name>

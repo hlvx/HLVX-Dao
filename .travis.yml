@@ -11,4 +11,5 @@ deploy:
   skip_cleanup: true
   on:
     repo: hlvx/HLVX-Dao
+    branch: develop
   name: $project_version

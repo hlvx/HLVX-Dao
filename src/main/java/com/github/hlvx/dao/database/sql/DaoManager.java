@@ -26,7 +26,7 @@ public class DaoManager {
     }
 
     /**
-     * Register DAOs, this method will avoid to have a bottleneck when calling {@link #create(Class, Handler)}
+     * Register DAOs, this method will avoid to have a bottleneck when calling {@link #createDao(Class, Handler)}
      * @param dao The dao Class to manage
      * @throws NoSuchMethodException Will be thrown if a default empty constructor didn't exist
      */
@@ -42,11 +42,10 @@ public class DaoManager {
      * Creates a new instance of a DAO assigned to a unique session for this DAO
      * The DAO is automatically closed after the handler finishes its actions
      * It is strongly recommended to register the Dao Class before calling this method at the beginning og the
-     * program using {@link #register(Class)}
+     * program using {@link #registerDao(Class)}
      * @param dao The dao Class to instantiate
      * @param handler A handler to retrieve the created DAO
      * @param <T> The DAO generic type you want to instantiate
-     * @throws Exception
      */
     public <T extends DAO> void createDao(Class<T> dao, Handler<AsyncResult<T>> handler) {
         try {
@@ -72,7 +71,6 @@ public class DaoManager {
                 }
             });
         } catch (Exception e) {
-            // TODO Manage exception
             logger.error("Exception catched for DAO " + dao, e);
             handler.handle(Future.failedFuture(e));
         }
@@ -82,12 +80,11 @@ public class DaoManager {
      * Creates a new instance of a DAO assigned the associated SQLSession
      * The DAO is automatically closed after the handler finishes its actions
      * It is strongly recommended to register the Dao Class before calling this method at the beginning og the
-     * program using {@link #register(Class)}
-     * @param session A valid SQLSession generated using {@link #createSession(Handler)}
+     * program using {@link #registerDao(Class)}
+     * @param session A valid SQLSession generated using {@link SQLSession#createSession(SQLClient, Handler)}
      * @param dao The dao Class to instantiate
      * @param handler A handler to retrieve the created DAO
      * @param <T> The DAO generic type you want to instantiate
-     * @throws Exception
      */
     public <T extends DAO> void createDao(SQLSession session, Class<T> dao, Handler<AsyncResult<T>> handler) {
         try {
@@ -107,7 +104,6 @@ public class DaoManager {
                 logger.error("Cannot close DAO " + dao, e);
             }
         } catch (Exception e) {
-            // TODO Manage exception
             logger.error("Exception catched for DAO " + dao, e);
             handler.handle(Future.failedFuture(e));
         }

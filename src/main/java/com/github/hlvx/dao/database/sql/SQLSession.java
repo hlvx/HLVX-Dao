@@ -11,6 +11,7 @@ import io.vertx.ext.sql.UpdateResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class SQLSession implements AutoCloseable {
@@ -44,7 +45,7 @@ public class SQLSession implements AutoCloseable {
     }
 
     protected void executeUpdate(Handler<AsyncResult<UpdateResult>> consumer, String query, Object... params) {
-        connection.updateWithParams(query, new JsonArray(List.of(params)), result -> {
+        connection.updateWithParams(query, new JsonArray(Arrays.asList(params)), result -> {
             if (result.failed()) {
                 consumer.handle(Future.failedFuture(result.cause()));
                 return;
@@ -54,7 +55,7 @@ public class SQLSession implements AutoCloseable {
     }
 
     protected void executeBatch(Handler<AsyncResult<List<Integer>>> consumer, String query, JsonArray... args) {
-        connection.batchWithParams(query, List.of(args), result -> {
+        connection.batchWithParams(query, Arrays.asList(args), result -> {
             if (result.failed()) {
                 consumer.handle(Future.failedFuture(result.cause()));
                 return;
@@ -65,7 +66,7 @@ public class SQLSession implements AutoCloseable {
 
     protected void executeBatchCallable(Handler<AsyncResult<List<Integer>>> consumer, String query, List<JsonArray> outputArgs,
                                      JsonArray... args) {
-        connection.batchCallableWithParams(query, List.of(args), outputArgs, result -> {
+        connection.batchCallableWithParams(query, Arrays.asList(args), outputArgs, result -> {
             if (result.failed()) {
                 consumer.handle(Future.failedFuture(result.cause()));
                 return;
@@ -79,7 +80,7 @@ public class SQLSession implements AutoCloseable {
     }
 
     protected void executeQuery(Handler<AsyncResult<ResultSet>> consumer, String query, Object... params) {
-        connection.queryWithParams(query, new JsonArray(List.of(params)), result -> {
+        connection.queryWithParams(query, new JsonArray(Arrays.asList(params)), result -> {
             if (result.failed()) {
                 consumer.handle(Future.failedFuture(result.cause()));
                 return;

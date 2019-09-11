@@ -27,6 +27,7 @@ mvn install
 ```
 
 # Examples
+The complete example can be found [here](src/test/java/Example.java).  
 All examples assumes that you have a minimal environment similar to the one
 defined here:
 ```java

@@ -10,6 +10,10 @@ import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.UpdateResult;
 
 public class Example {
+    public static void main(String[] args) {
+        test();
+    }
+
     public void test() throws NoSuchMethodException {
         Vertx vertx = Vertx.vertx();
         JsonObject config = new JsonObject()

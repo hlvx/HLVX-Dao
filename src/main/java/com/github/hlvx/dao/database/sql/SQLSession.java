@@ -3,6 +3,7 @@ package com.github.hlvx.dao.database.sql;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLClient;
@@ -11,10 +12,13 @@ import io.vertx.ext.sql.UpdateResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-public class SQLSession implements AutoCloseable {
+public class SQLSession implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(SQLSession.class);
     private final SQLConnection connection;
     private boolean closed = false;
@@ -34,13 +38,27 @@ public class SQLSession implements AutoCloseable {
                 handler.handle(Future.failedFuture(connectionResult.cause()));
                 return;
             }
+
+            Vertx.currentContext().exceptionHandler(ex -> {
+                List<Closeable> toClose = Vertx.currentContext().get("hlvx.dao.toClose");
+                if (toClose != null) toClose.forEach(e -> {
+                    try {
+                        e.close();
+                    } catch (IOException exc) {
+                        logger.error("Close error", exc);
+                    }
+                });
+                throw new RuntimeException(ex);
+            });
+
             SQLSession session = new SQLSession(connectionResult.result());
-            handler.handle(Future.succeededFuture(session));
-            try {
-                session.close();
-            } catch (Exception e) {
-                logger.error("Cannot close Session ", e);
+            List<Closeable> toClose = Vertx.currentContext().get("hlvx.dao.toClose");
+            if (toClose == null) {
+                toClose = new CopyOnWriteArrayList<>();
+                Vertx.currentContext().put("hlvx.dao.toClose", toClose);
             }
+            toClose.add(session);
+            handler.handle(Future.succeededFuture(session));
         });
     }
 
@@ -120,13 +138,11 @@ public class SQLSession implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (closed) return;
         closed = true;
-        connection.setAutoCommit(true, r -> {
-            connection.close(result -> {
-                if (result.failed()) throw new RuntimeException(result.cause());
-            });
+        connection.close(result -> {
+            if (result.failed()) throw new RuntimeException(result.cause());
         });
     }
 }

@@ -13,7 +13,7 @@ import java.util.List;
  * Base class for DAOs
  * It is intended to be inherited from each DAO created
  */
-public abstract class DAO<T extends DAO> implements AutoCloseable {
+public abstract class DAO implements AutoCloseable {
     private SQLSession session;
     private DaoManager manager;
 

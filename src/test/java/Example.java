@@ -10,11 +10,11 @@ import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.UpdateResult;
 
 public class Example {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchMethodException {
         test();
     }
 
-    public void test() throws NoSuchMethodException {
+    public static void test() throws NoSuchMethodException {
         Vertx vertx = Vertx.vertx();
         JsonObject config = new JsonObject()
                 .put("url", "jdbc:hsqldb:mem:test?shutdown=true")
@@ -150,7 +150,7 @@ public class Example {
         });
     }
 
-    private static class MyDaoClass extends DAO<MyDaoClass> {
+    private static class MyDaoClass extends DAO {
         public void exampleQuery(Handler<AsyncResult<ResultSet>> handler) {
             executeQuery(handler, "SELECT * FROM users");
         }
@@ -164,7 +164,7 @@ public class Example {
         }
     }
 
-    private static class MyDaoClass2 extends DAO<MyDaoClass2> {
+    private static class MyDaoClass2 extends DAO {
         public void exampleUpdate(Handler<AsyncResult<UpdateResult>> handler, String username, String newUsername) {
             executeUpdate(handler, "UPDATE users SET username = ? WHERE username = ?", newUsername, username);
         }

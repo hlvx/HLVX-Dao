@@ -7,22 +7,28 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.UpdateResult;
 
+import java.io.Closeable;
 import java.util.List;
 
 /**
  * Base class for DAOs
  * It is intended to be inherited from each DAO created
  */
-public abstract class DAO implements AutoCloseable {
+public abstract class DAO implements Closeable {
     private SQLSession session;
     private DaoManager manager;
+    private boolean closeSession;
+
+    protected void setCloseSession(boolean close) {
+        closeSession = close;
+    }
 
     protected void setSession(SQLSession session) {
         this.session = session;
     }
 
     protected void setManager(DaoManager daoManager) {
-        this.manager = manager;
+        this.manager = daoManager;
     }
 
     protected void executeUpdate(Handler<AsyncResult<UpdateResult>> consumer, String query, Object... params) {
@@ -77,10 +83,16 @@ public abstract class DAO implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
-        if (session == null) return;
+    public void close() {
+        if (session == null || manager == null) return;
+        if (closeSession) session.close();
         session = null;
-        manager = null;
-        manager.returnDao(this);
+        try {
+            manager.returnDao(this);
+            manager = null;
+        } catch (Exception e) {
+            manager = null;
+            throw new RuntimeException(e);
+        }
     }
 }

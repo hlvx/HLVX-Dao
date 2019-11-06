@@ -3,6 +3,7 @@ package com.github.hlvx.dao.database.sql;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.ext.sql.SQLClient;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.ObjectPool;
@@ -12,9 +13,12 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.lang.reflect.Constructor;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DaoManager {
     private static final Logger logger = LoggerFactory.getLogger(DaoManager.class);
@@ -63,17 +67,23 @@ public class DaoManager {
                 }
                 instance.setSession(sessionResult.result());
                 instance.setManager(this);
+                instance.setCloseSession(true);
+                addToClose(instance);
                 handler.handle(Future.succeededFuture((T) instance));
-                try {
-                    instance.close();
-                } catch (Exception e) {
-                    logger.error("Cannot close DAO " + dao, e);
-                }
             });
         } catch (Exception e) {
             logger.error("Exception catched for DAO " + dao, e);
             handler.handle(Future.failedFuture(e));
         }
+    }
+
+    private void addToClose(DAO instance) {
+        List<Closeable> toClose = Vertx.currentContext().get("hlvx.dao.toClose");
+        if (toClose == null) {
+            toClose = new CopyOnWriteArrayList<>();
+            Vertx.currentContext().put("hlvx.dao.toClose", toClose);
+        }
+        toClose.add(instance);
     }
 
     /**
@@ -97,12 +107,8 @@ public class DaoManager {
             DAO instance = pool.borrowObject();
             instance.setSession(session);
             instance.setManager(this);
+            addToClose(instance);
             handler.handle(Future.succeededFuture((T) instance));
-            try {
-                instance.close();
-            } catch (Exception e) {
-                logger.error("Cannot close DAO " + dao, e);
-            }
         } catch (Exception e) {
             logger.error("Exception catched for DAO " + dao, e);
             handler.handle(Future.failedFuture(e));
@@ -110,8 +116,8 @@ public class DaoManager {
     }
 
     protected void returnDao(DAO dao) throws Exception {
-        ObjectPool<DAO> pool = daoPools.get(dao);
-        if (pool == null) throw new IllegalArgumentException("Dao not registered");
+        ObjectPool<DAO> pool = daoPools.get(dao.getClass());
+        if (pool == null) throw new RuntimeException("Dao not registered");
         pool.returnObject(dao);
     }
 

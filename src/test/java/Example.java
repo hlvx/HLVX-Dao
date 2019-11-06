@@ -37,12 +37,15 @@ public class Example {
                     if (resultSet.succeeded()) {
                         ResultSet rs = resultSet.result();
                         // Do what you want to do with your result set here
+                        daoResult.result().close();
                     } else {
                         // Handle error
+                        throw new RuntimeException(resultSet.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
                     }
                 });
             } else {
                 // Handle error
+                throw new RuntimeException(daoResult.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
             }
         });
 
@@ -61,35 +64,43 @@ public class Example {
                                                 dao.rollback(result2 -> {
                                                     if (result2.failed()) {
                                                         // Handle error
+                                                        throw new RuntimeException(result2.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
                                                     }
                                                 });
                                                 // Handle error
-                                            }
+                                                throw new RuntimeException(result.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
+                                            } else dao.close();
                                         });
                                     } else {
                                         dao.rollback(result -> {
                                             if (result.failed()) {
                                                 // Handle error
+                                                throw new RuntimeException(result.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
                                             }
                                         });
                                         // Handle error
+                                        throw new RuntimeException(deletionResult.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
                                     }
                                 }, "username");
                             } else {
                                 dao.rollback(result -> {
                                     if (result.failed()) {
                                         // Handle error
+                                        throw new RuntimeException(result.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
                                     }
                                 });
                                 // Handle error
+                                throw new RuntimeException(resultSetResult.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
                             }
                         }, "username", "email");
                     } else {
                         // Handle error
+                        throw new RuntimeException(sessionResult.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
                     }
                 });
             } else {
                 // Handle error
+                throw new RuntimeException(daoResult.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
             }
         });
 
@@ -112,40 +123,52 @@ public class Example {
                                                         session.commit(commitResult -> {
                                                             if (commitResult.failed()) {
                                                                 // Handle error
+                                                                throw new RuntimeException(sessionResult.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
                                                             }
                                                         });
+                                                        session.close();
+                                                        dao1.close();
+                                                        dao2.close();
                                                     } else {
                                                         session.rollback(rollbackResult -> {
                                                             if (rollbackResult.failed()) {
                                                                 // Handle error
+                                                                throw new RuntimeException(sessionResult.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
                                                             }
                                                         });
                                                         // Handle error
+                                                        throw new RuntimeException(resultSet2Result.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
                                                     }
                                                 }, "username", "newUsername");
                                             } else {
                                                 session.rollback(rollbackResult -> {
                                                     if (rollbackResult.failed()) {
                                                         // Handle error
+                                                        throw new RuntimeException(rollbackResult.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
                                                     }
                                                 });
                                                 // Handle error
+                                                throw new RuntimeException(resultSet1Result.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
                                             }
                                         }, "username", "email");
                                     } else {
                                         // Handle error
+                                        throw new RuntimeException(result.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
                                     }
                                 });
                             } else {
                                 // Handle error
+                                throw new RuntimeException(dao2Result.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
                             }
                         });
                     } else {
                         // Handle error
+                        throw new RuntimeException(dao1Result.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
                     }
                 });
             } else {
                 // Handle error
+                throw new RuntimeException(sessionResult.cause()); // This will ensure that the DAO and the session are closed. You can also use dao.close(); manually
             }
         });
     }

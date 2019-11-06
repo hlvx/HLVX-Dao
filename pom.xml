@@ -190,6 +190,12 @@
                 </goals>
               </execution>
             </executions>
+            <configuration>
+              <gpgarguments>
+                <gpgargument>--pinentry-mode</gpgargument>
+                <gpgargument>loopback</gpgargument>
+              </gpgarguments>
+            </configuration>
           </plugin>
         </plugins>
       </build>

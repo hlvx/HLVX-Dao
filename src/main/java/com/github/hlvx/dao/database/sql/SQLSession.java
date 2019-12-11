@@ -48,7 +48,7 @@ public class SQLSession implements Closeable {
                         logger.error("Close error", exc);
                     }
                 });
-                Vertx.currentContext().put("hlvx.dao.toClose", null);
+                Vertx.currentContext().remove("hlvx.dao.toClose");
                 throw new RuntimeException(ex);
             });
 
